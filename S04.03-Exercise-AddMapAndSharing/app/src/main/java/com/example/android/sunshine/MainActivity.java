@@ -38,6 +38,8 @@ import com.example.android.sunshine.utilities.OpenWeatherJsonUtils;
 
 import java.net.URL;
 
+import static android.content.Intent.ACTION_VIEW;
+
 public class MainActivity extends AppCompatActivity implements ForecastAdapterOnClickHandler {
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -214,15 +216,33 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapterOn
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+        boolean ret = true;
+        switch(id)
+        {
+            case R.id.action_refresh:
+                mForecastAdapter.setWeatherData(null);
+                loadWeatherData();
+                break;
+            case R.id.action_map:
+                String location = SunshinePreferences.getPreferredWeatherLocation(this);
+                Uri.Builder builder = new Uri.Builder();
+                builder.scheme("geo")
+                        .path("0,0")
+                        .appendQueryParameter("q",location)
+                        .appendQueryParameter("z","5");
 
-        if (id == R.id.action_refresh) {
-            mForecastAdapter.setWeatherData(null);
-            loadWeatherData();
-            return true;
+                Uri build = builder.build();
+                Intent intent = new Intent(ACTION_VIEW,build);
+                startActivity(intent);
+                break;
+            default:
+                ret = super.onOptionsItemSelected(item);
+                break;
         }
+
 
         // TODO (2) Launch the map when the map menu item is clicked
 
-        return super.onOptionsItemSelected(item);
+        return ret;
     }
 }
